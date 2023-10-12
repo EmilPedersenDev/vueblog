@@ -1,0 +1,22 @@
+@import './base.css';
+
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  transition: all ease 0.2s;
+  border: 1px solid transparent;
+  text-decoration: none;
+  color: black;
+
+  &:hover {
+    border-bottom: 1px solid #484848;
+    color: #484848;
+  }
+}
