@@ -28,7 +28,7 @@ onBeforeMount(async () => {
   <section id="article">
     <h1>Article</h1>
     <span>By author {{ article?.author }}</span>
-    <p>{{ article?.text }}</p>
+    <p v-html="article?.text"></p>
     <Toast/>
   </section>
 </template>

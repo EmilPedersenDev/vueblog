@@ -11,9 +11,11 @@
 </template>
 
 <style lang="scss" scoped>
+@import "src/assets/mixins.scss";
+
 #home {
   width: 100%;
-  height: calc(100vh - 60px);
+  @include fullHeight;
   display: flex;
   justify-content: center;
   align-items: center;
