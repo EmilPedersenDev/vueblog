@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import userStore from "@/store/user-store";
+
+const store = userStore()
 
 </script>
 
@@ -16,6 +19,9 @@
         </li>
         <li>
           <router-link to="/articles">Articles</router-link>
+        </li>
+        <li v-if="store?.userId">
+          <router-link to="/articles/create">Create Article</router-link>
         </li>
       </ul>
     </nav>
