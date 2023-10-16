@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import {onBeforeMount, ref} from "vue";
+import {computed, onBeforeMount, ref} from "vue";
 import Card from 'primevue/card';
 import Paginator from 'primevue/paginator';
 import api from "@/util/api";
+import Skeleton from "primevue/skeleton";
 
 const ARTICLE_PER_PAGE = 9;
 
@@ -13,6 +14,9 @@ const rows = ref(ARTICLE_PER_PAGE)
 const offset = ref(0);
 const page = ref(0);
 const pageCount = ref(0);
+const isLoaded = ref(false)
+
+const numOfSkeletonCards = computed(() => articlesTotalAmount.value > 9 ? 9 : articlesTotalAmount.value)
 
 const getArticles = async () => {
   try {
@@ -20,6 +24,8 @@ const getArticles = async () => {
     articles.value = data;
   } catch (e) {
     console.error(e.data?.response?.message || e)
+  } finally {
+    isLoaded.value = true;
   }
 }
 
@@ -35,7 +41,7 @@ const getArticlesTotalAmount = async () => {
 
 onBeforeMount(async () => {
   page.value += 1;
-  await Promise.all[getArticlesTotalAmount(), getArticles()]
+  await Promise.all[await getArticlesTotalAmount(), await getArticles()]
 });
 
 const convertToUTC = timestamp => {
@@ -61,12 +67,15 @@ const onPage = async (e) => {
 
     <h1>Articles</h1>
     <ul class="articles__grid">
-      <li v-for="(article, i) in articles" :key="i">
-        <router-link :to="`/articles/${article.id}`">
+      <li class="skeleton-wrapper" v-for="i in numOfSkeletonCards" :key="i" :class="{'hide':isLoaded}">
+        <Skeleton height="200px" width="100%" v-if="!isLoaded"></Skeleton>
+      </li>
+      <li v-for="(article, i) in articles" :key="i" :class="{'hide':!isLoaded}" class="articles__item">
+        <router-link v-if="isLoaded" :to="`/articles/${article.id}`">
           <Card>
             <template #header>
               <img alt="article image"
-                   :src="article?.img || 'https://picsum.photos/200/300'"
+                   :src="article?.thumbnail || 'https://images.unsplash.com/photo-1553048512-887b27dc3863?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80'"
                    loading="lazy"/>
             </template>
             <template #title> {{ article?.title }}</template>
@@ -75,7 +84,7 @@ const onPage = async (e) => {
         </router-link>
       </li>
     </ul>
-    <div class="card">
+    <div class="card" v-if="articles.length > 9">
       <Paginator :rows="rows" :totalRecords="articlesTotalAmount" :rowsPerPageOptions="[9, 18, 27]"
                  v-model:first="offset"
                  v-model:rows="rows" @page="onPage"></Paginator>
@@ -106,10 +115,19 @@ const onPage = async (e) => {
       grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
     }
 
+    .skeleton-wrapper {
+      &.hide {
+        display: none;
+      }
+    }
+
     li {
       text-decoration: none;
       list-style-type: none;
 
+      &.articles__item.hide {
+        display: none;
+      }
 
       .p-card.p-component {
         transition: all ease 0.3s;
